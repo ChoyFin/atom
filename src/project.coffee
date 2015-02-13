@@ -51,7 +51,16 @@ class Project extends Model
     atom.packages.serviceHub.consume(
       'atom.repository-provider',
       '^0.1.0',
-      (provider) => @repositoryProviders.push(provider))
+      (provider) =>
+        @repositoryProviders.push(provider)
+
+        # If a path in getPaths() does not have a corresponding Repository, try
+        # to assign one by running through setPaths() again now that
+        # @repositoryProviders has been updated.
+        paths = @getPaths()
+        if paths.length and not @repo
+          @setPaths paths
+      )
 
     @subscribeToBuffer(buffer) for buffer in @buffers
 
